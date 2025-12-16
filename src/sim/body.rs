@@ -1,6 +1,7 @@
 use glam::Vec2;
-use particular::prelude::Particle;
+use particular::prelude::{Particle, VectorDescriptor};
 use rapier2d::prelude::*;
+
 
 use crate::sim::{GRAVITY_AMPLIFIER, UNIVERSAL_GRAVITY};
 
@@ -15,10 +16,10 @@ pub struct Body {
 }
 
 impl Particle for Body {
-    type Vector = Vec2;
+    type Vector = VectorDescriptor<2, [f32; 2]>;
 
-    fn position(&self) -> Vec2 {
-        self.position
+    fn position(&self) -> [f32; 2] {
+        [self.position.x, self.position.y]
     }
 
     fn mu(&self) -> f32 {
@@ -64,7 +65,8 @@ impl Body {
         let rb = bodies.get(self.rigidbody_handle).unwrap();
         let coll = colliders.get(self.collider_handle).unwrap();
 
-        self.position = (*rb.translation()).into();
+        let translation = rb.translation();
+        self.position = Vec2::new(translation.x, translation.y);
         self.rotation = rb.rotation().angle();
         self.radius = coll.shape().as_ball().unwrap().radius;
         self.mass = rb.mass();
@@ -73,12 +75,12 @@ impl Body {
     pub fn apply_acceleration_to_rigidbody(
         &self,
         bodies: &mut RigidBodySet,
-        acceleration: <Self as Particle>::Vector,
+        acceleration: [f32; 2],
     ) {
         let rb = bodies.get_mut(self.rigidbody_handle).unwrap();
-        let force = acceleration * self.mass();
+        let force = Vec2::new(acceleration[0], acceleration[1]) * self.mass();
 
         rb.reset_forces(true);
-        rb.add_force(force.into(), true);
+        rb.add_force(nalgebra::Vector2::new(force.x, force.y), true);
     }
 }

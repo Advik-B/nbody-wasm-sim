@@ -26,7 +26,7 @@ impl FrameDescriptor {
         for body in sim.physics_context.bodies.iter() {
             transforms.push(GpuTransform {
                 model: Mat4::from_scale_rotation_translation(
-                    Vec2::splat(2.0 * body.radius()).extend(1.0),
+                    Vec2::splat(2.0 * body.radius() as f32).extend(1.0),
                     Quat::from_rotation_z(body.rotation()),
                     body.position().extend(1.0),
                 )

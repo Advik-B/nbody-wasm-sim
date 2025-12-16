@@ -1,4 +1,4 @@
-use particular::ParticleSet;
+use particular::prelude::ParticleSet;
 use rapier2d::prelude::*;
 
 use super::body::Body;
@@ -49,10 +49,10 @@ impl PhysicsContext {
     }
 
     pub fn step(&mut self) {
-        for (body, acceleration) in self.bodies.result() {
+        for (position, body) in self.bodies.result() {
             body.apply_acceleration_to_rigidbody(
                 &mut self.rigid_body_set,
-                acceleration,
+                position,
             )
         }
 
@@ -72,6 +72,7 @@ impl PhysicsContext {
         );
 
         for body in self.bodies.iter_mut() {
+            let body: &mut Body = body;
             body.sync_to_rigidbody(&self.rigid_body_set, &self.collider_set);
         }
     }
